@@ -66,4 +66,4 @@ if __name__ == '__main__':  # код для тестирования
     print('Done')
 
 
-
+checking connection
