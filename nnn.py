@@ -64,3 +64,5 @@ if __name__ == '__main__':  # код для тестирования
         if q == 'yes':
             selected_cities[city] = True
     print('Done')
+
+#check
