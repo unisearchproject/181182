@@ -69,6 +69,62 @@ def get_universities_data(
                 raise e
 
 
+def get_university_programs(
+        url, ucheba_link=ucheba_link, headers=headers,
+        try_count=max_tries, exceptions=exceptions):
+    # выдает программы университета по ссылке
+    while try_count:
+        try_count -= 1
+        try:
+            r = requests.get(ucheba_link + url, headers=headers)
+            soup = BeautifulSoup(r.text, 'html.parser')
+            programs = soup.find_all(
+                'section', class_='search-results-info-item')
+            programs_data = []
+            for program in programs:
+                current_program = {
+                    'Название': html2text.html2text(
+                        program.find_all(
+                            'a', class_='js_webstat', href=True
+                        )[0].text
+                    ).replace('\n', ''),
+
+                    'Степень': html2text.html2text(
+                        program.find_all('div', class_='fs-small')[0].text
+                    ).replace('\n', ''),
+
+                    'Проходной балл': html2text.html2text(
+                        program.find_all('div', class_='big-number-h2')[0].text
+                    ).replace('\n', ''),
+
+                    'Бюджетных мест': html2text.html2text(
+                        program.find_all(
+                            'div', class_='big-number-h2 price-year'
+                        )[0].text
+                    ).replace('\n', ''),
+
+                    'Стоимость': html2text.html2text(
+                        program.find_all(
+                            'div', class_='big-number-h2 price-year'
+                        )[1].text
+                    ).replace('\n', ''),
+
+                    'Ссылка': html2text.html2text(
+                        program.find_all(
+                            'a', class_='js_webstat', href=True
+                        )[0]['href']
+                    ).replace('\n', '')
+                }
+
+                programs_data.append(current_program)
+
+            return programs_data
+        except exceptions as e:
+            if not try_count:
+                raise e
+
+
+
 
 def get_universities(
         _selected_cities, _subjects, _passed_exams,
