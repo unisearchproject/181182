@@ -1,7 +1,22 @@
+def universities_data(
+        url, headers=headers,
+        try_count=max_tries, exceptions=exceptions):
+    # достает данные вуза по ссылке
+    while try_count:
+        try_count -= 1
+        try:
+            r = requests.get(url, headers=headers)
+            soup = BeautifulSoup(r.text, 'html.parser')
+            universities = soup.find_all(
+                'div', class_='search-results-item-inner'
+            )
+
+
+
 def get_universities(
         _selected_cities, _subjects, _passed_exams,
-        ucheba_link=ucheba_link, headers=headers, exams_to_ids=exams_to_ids,
-        ucheba_for_abiturients_link=ucheba_for_abiturients_link):
+        ucheba_link = ucheba_link, headers=headers, exams_to_ids = exams_to_ids,
+        ucheba_for_abiturients_link = ucheba_for_abiturients_link):
     # выдает нужные университеты по нужным критериям
 
     if (sum(_subjects.values()) >= 3 and
@@ -66,4 +81,4 @@ if __name__ == '__main__':  # код для тестирования
     print('Done')
 
 
-checking connection
+
