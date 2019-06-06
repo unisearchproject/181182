@@ -1,4 +1,14 @@
-def universities_data(
+import requests
+
+from bs4 import BeautifulSoup
+import html2text
+
+from cfg import ucheba_link, ucheba_for_abiturients_link, headers
+from cfg import city_to_id, selected_cities, subjects, passed_exams
+from cfg import exams_to_ids, max_tries, exceptions
+
+
+def get_universities_data(
         url, headers=headers,
         try_count=max_tries, exceptions=exceptions):
     # достает данные вуза по ссылке
@@ -11,12 +21,59 @@ def universities_data(
                 'div', class_='search-results-item-inner'
             )
 
+            universities_data = []
+            for university in universities:
+                current_university = {
+                    'Название': html2text.html2text(
+                        university.find_all(
+                            'a', class_='js_webstat'
+                        )[-1].text
+                    ).replace('\n', ''),
+
+                    'Проходной балл': html2text.html2text(
+                        university.find_all(
+                            'div', class_='big-number-h2'
+                        )[0].text
+                    ).replace('\n', ''),
+
+                    'Бюджетных мест': html2text.html2text(
+                        university.find_all(
+                            'div', class_='big-number-h2 price-year'
+                        )[0].text
+                    ).replace('\n', ''),
+
+                    'Стоимость': html2text.html2text(
+                        university.find_all(
+                            'div', class_='big-number-h2 price-year'
+                        )[1].text).replace('\n', ''),
+
+                    'Программы': html2text.html2text(
+                        university.find_all(
+                            'a',
+                            class_='search-results-more-info js-search-'
+                                   'results-more-info js_show_all_programs',
+                            href=True
+                        )[0]['data-programs-url']
+                    ).replace('\n', '').replace(';', ''),
+
+                    'Ссылка': html2text.html2text(
+                        university.find_all(
+                            'a', class_='js_webstat', href=True
+                        )[0]['href']
+                    ).replace('\n', '')
+                }
+                universities_data.append(current_university)
+            return universities_data
+        except exceptions as e:
+            if not try_count:
+                raise e
+
 
 
 def get_universities(
         _selected_cities, _subjects, _passed_exams,
-        ucheba_link = ucheba_link, headers=headers, exams_to_ids = exams_to_ids,
-        ucheba_for_abiturients_link = ucheba_for_abiturients_link):
+        ucheba_link=ucheba_link, headers=headers, exams_to_ids=exams_to_ids,
+        ucheba_for_abiturients_link=ucheba_for_abiturients_link):
     # выдает нужные университеты по нужным критериям
 
     if (sum(_subjects.values()) >= 3 and
