@@ -79,23 +79,21 @@ def get_universities(
     if (sum(_subjects.values()) >= 3 and
             sum(x > 0 for x in _passed_exams.values()) >= 3):
         additional = ''
-        for city in range(len(_selected_cities)):
-            if list(_selected_cities.items())[city][1]:
+        for city, value in _selected_cities.items():
+            if value:
                 additional += 'eq%5B{}%5D=__l%3A{}&'.format(
-                    city,
-                    city_to_id[list(_selected_cities.items())[city][0]]
+                    city, city_to_id[city]
                 )
 
-        for subject in range(len(_subjects)):
-            if list(_passed_exams.items())[subject][1]:
-                additional += '{}=1&'.format(
-                    exams_to_ids[list(_passed_exams.items())[subject][0]]
-                ).replace('val', 'set')
+        for subject, value in _subjects.items():
+            if value:
+                additional += '{}=1&'.format(exams_to_ids[subject]).replace(
+                    'val', 'set')
 
                 additional += '{}={}&'.format(
-                    exams_to_ids[list(_passed_exams.items())[subject][0]],
-                    subjects[list(_passed_exams.items())[subject][0]]
+                    exams_to_ids[subject], subjects[subject]
                 )
+
         string_ = f'{ucheba_link}{ucheba_for_abiturients_link}{additional}'
         return get_universities_data(url=string_)
     else:
