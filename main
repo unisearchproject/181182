@@ -1,0 +1,13 @@
+# just trying to fix git path
+
+def start(message):
+    # это будет начало нашего бота, отправка клавиатуры пользователю и информация о предметах
+    keyboard = adjust_keyboard(cfg.subjects_keyboard)
+    bot.send_message(
+        message.chat.id, cfg.choice_subjects,
+        reply_markup=reply_markup(keyboard)
+    )
+    db.set_vars(message.chat.id, keyboard_subjects=keyboard)
+    return which_subjects
+
+# все функции добавить в отдельную папку (cfg с андреем и никой обсудить)
