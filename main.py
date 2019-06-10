@@ -1,3 +1,24 @@
+# handlers ################
+
+@bot.message_handler(commands=['start', 'help'])
+def commands_handler(message):
+    # обрабатываем отдельно команды /start и /help
+    try:
+        text = message.text
+        user_id = message.chat.id
+        
+        if text == '/start':
+            bot.send_message(user_id, cfg.start_message)
+            if db.get_state(user_id) is None:
+                new_state = start(nessage)
+                db.set_state(user_id, new_state)
+                
+        elif text == '/help':
+            bot.send_message(user_id, cfg.help_message)
+            
+    except ConnectionError:
+        pass
+    
 def start(message):
     # это будет начало нашего бота, отправка клавиатуры пользователю и информация о предметах
     keyboard = adjust_keyboard(cfg.subjects_keyboard)
