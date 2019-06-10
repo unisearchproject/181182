@@ -19,6 +19,23 @@ def commands_handler(message):
     except ConnectionError:
         pass
     
+   
+@bot.message_handler(content_types=['text'])
+def finite_state_machine(message):
+    try:
+        user_id = message.chat.id
+        current_state = db.get_state(user_id)
+        if current_state is None:
+            current_state = start.__name__
+
+        function = DICT_HANDLER[current_state]
+        new_state = function(message)  # new state is function
+        if new_state is not None:
+            db.set_state(user_id, new_state)
+    except ConnectionError:
+        # не обрабатываем другие ошибки, т.к. это нам не  не надо
+        pass
+    
 def start(message):
     # это будет начало нашего бота, отправка клавиатуры пользователю и информация о предметах
     keyboard = adjust_keyboard(cfg.subjects_keyboard)
