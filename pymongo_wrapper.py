@@ -26,3 +26,18 @@ class PyMongoWrapper:
             {'$set': set_values},
             upsert=True
         )
+
+    def get_vars(self, user_id: int):
+        # получаем все переменные юзера
+        return list(
+            self.db.vars.find_one({'user_id': int(user_id)})
+        )
+
+    def get_var(self, user_id: int, var: str):
+        # получаем одну нужную переменную юзера
+        return self.db.vars.find_one(
+            {'user_id': int(user_id)},
+            {'_id': 0, var: 1}
+        )[var]
+
+    ###
