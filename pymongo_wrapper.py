@@ -11,3 +11,18 @@ class PyMongoWrapper:
             {'$set': {'state': function.__name__}},
             upsert=True
         )
+
+    def get_state(self, user_id):
+        # получаем состояние юзера по user_id
+        req = self.db.users.find_one({'user_id': int(user_id)}, {'state': 1})
+        return req['state'] if req else None
+
+    ###
+
+    def set_vars(self, user_id: int, **set_values):
+        # сохраняем нужные переменные для юзера
+        self.db.vars.update_one(
+            {'user_id': int(user_id)},
+            {'$set': set_values},
+            upsert=True
+        )
