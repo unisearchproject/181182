@@ -46,7 +46,7 @@ def start(message):
     db.set_vars(message.chat.id, keyboard_subjects=keyboard)
     return which_subjects
 
-# все функции добавить в отдельную папку (cfg с андреем и никой обсудить)
+
 def which_subjects(message):
     # обрабатываем ввод предметов и сохраняем их, после спрашиваем баллы
     text = message.text.replace(
@@ -129,3 +129,84 @@ def which_points(message):
             bot.send_message(user_id, cfg.points_dont_match)
     else:  # пользователь ввел баллы неправильно
         bot.send_message(user_id, cfg.invalid_points)
+        
+        
+def which_regions(message):
+    # обрабатываем ввод регионов, выдаем найденые вузы
+    # после отправляем repeat_serch_menu
+    text = message.text.replace(cfg.added_char, '').replace(
+        cfg.ignored_char, '')
+    keyboard = db.get_var(message.chat.id, 'keyboard_regions')
+
+    if text == cfg.break_button_regions:
+        # геренируем аргументы для get_universities
+        selected_regions = deepcopy(cfg.selected_cities)
+        regions = pull_selected(keyboard)
+        for region in regions:
+            selected_regions[region] = True
+
+        subjects = deepcopy(cfg.subjects)
+        passed_exams = deepcopy(cfg.passed_exams)
+        points = db.get_var(message.chat.id, 'points')
+        for subj in points:
+            title = cfg.decode_subjects_ucheba[subj['subject_id']]
+            subjects[title] = subj['points']
+            passed_exams[title] = True
+
+        universities = unifinder.get_universities(
+            _selected_cities=selected_regions,
+            _subjects=subjects,
+            _passed_exams=passed_exams
+        )
+        # выводим параметры поиска
+        points_msg = '\n'.join(
+            [
+                cfg.data_saved.format(
+                    cfg.decode_subjects[subj['subject_id']],
+                    subj['points']
+                )
+                for subj in points
+            ]
+        )
+        regions_msg = '\n'.join(regions)
+        if not regions_msg:
+            regions_msg = 'Не выбрано'
+        parameters_msg = cfg.search_parameters.format(points_msg, regions_msg)
+        bot.send_message(
+            message.chat.id, parameters_msg, parse_mode='HTML')
+
+        if universities:
+            for univer in universities:
+                title = univer['Название']
+                object_id = db.save_programs(
+                    univer_title=univer['Название'],
+                    programs_url=univer['Программы']
+                )
+                keyboard = telebot.types.InlineKeyboardMarkup()
+                button = telebot.types.InlineKeyboardButton(
+                    text=cfg.button_programs, callback_data=object_id
+                )
+                keyboard.add(button)
+                bot.send_message(
+                    message.chat.id, title,
+                    parse_mode='HTML', reply_markup=keyboard
+                )
+        else:
+            bot.send_message(message.chat.id, cfg.nothing_found)
+
+        bot.send_message(
+            message.chat.id, cfg.repeat_search_message,
+            reply_markup=reply_markup(cfg.repeat_serch_menu)
+        )
+        return repeat_serch_menu
+
+    elif text in cfg.cities:
+        keyboard = update_keyboard(text, keyboard)
+        db.set_vars(message.chat.id, keyboard_regions=keyboard)
+        bot.send_message(
+            message.chat.id, random.choice(cfg.region_saved_messages),
+            reply_markup=reply_markup(keyboard)
+        )
+
+    else:
+        bot.send_message(message.chat.id, cfg.nonexist_region)
