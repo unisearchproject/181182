@@ -157,5 +157,3 @@ def get_universities(
 
 
 
-
-
