@@ -88,7 +88,7 @@ def commands_handler(message):
         if text == '/start':
             bot.send_message(user_id, cfg.start_message)
             if db.get_state(user_id) is None:
-                new_state = start(nessage)
+                new_state = start(message)
                 db.set_state(user_id, new_state)
                 
         elif text == '/help':
