@@ -23,7 +23,7 @@ def adjust_keyboard(keyboard, opening_char=cfg.ignored_char):
         for ind in range(len(keyboard))
     ]
 
-# handlers ################
+# handlers
 
 @bot.message_handler(commands=['start', 'help'])
 def commands_handler(message):
@@ -270,3 +270,31 @@ def which_regions(message):
 
     else:
         bot.send_message(message.chat.id, cfg.nonexist_region)
+
+        
+def repeat_serch_menu(message):
+    # обрабатываем вводы повторного поиса юзера
+    text = message.text
+    buttons = cfg.repeat_serch_buttons
+
+    if text == buttons['again']:
+        return start(message)
+
+    elif text == buttons['regions']:
+        keyboard = db.get_var(message.chat.id, 'keyboard_regions')
+        bot.send_message(
+            message.chat.id, cfg.choice_regions,
+            reply_markup=reply_markup(keyboard)
+        )
+        return which_regions
+
+    elif text == buttons['subjects']:
+        keyboard = db.get_var(message.chat.id, 'keyboard_subjects')
+        bot.send_message(
+            message.chat.id, cfg.choice_subjects,
+            reply_markup=reply_markup(keyboard)
+        )
+        return repeat_subjects
+
+    else:
+        bot.send_message(message.chat.id, cfg.use_keyboard)
