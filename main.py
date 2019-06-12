@@ -43,6 +43,20 @@ def update_keyboard(
             keyboard[row_ind][button_ind] = button
     return keyboard
 
+
+def pull_selected(
+        keyboard, added_char=cfg.added_char, ignored_char=cfg.ignored_char):
+    # возвращает коды выбранных предметов из клавиатуры
+    return [
+        button.replace(added_char, '')
+        for row in keyboard
+        for button in row
+        if button.startswith(added_char)
+    ]
+
+
+
+
 # handlers
 
 @bot.message_handler(commands=['start', 'help'])
