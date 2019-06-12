@@ -19,6 +19,41 @@ def commands_handler(message):
     except ConnectionError:
         pass
     
+    
+@bot.callback_query_handler(func=lambda x: True)
+def callback_handler(call):
+    # используется когда юзер жмет на кнопку "подробнее" у вуза
+    if call.message:  # сообщение из * чата
+        object_id = call.data
+        user_id = call.message.chat.id
+
+        data = db.get_programs(object_id)
+        title, url = data['title'], data['url']
+
+        title = cfg.univer_title.format(title.upper())
+        programs = unifinder.get_university_programs(url)
+        programs_msgs = [
+            '\n'.join(
+                [
+                    f'<code>{key}:</code>  {value}'
+                    if key != 'Название' else f'<b>{value}</b>'
+                    for key, value in program.items()
+                    if key != 'Ссылка'
+                ]
+            )
+            for program in programs
+        ]
+
+        first_message = f'{title}\n\n\n' + "\n\n".join(programs_msgs[:20])
+        bot.send_message(user_id, first_message, parse_mode='HTML')
+
+        if len(programs_msgs) >= 21:
+            prev_ind = 20
+            for cur_ind in range(20, len(programs_msgs), 20):
+                message = '\n\n'.join(programs_msgs[prev_ind:cur_ind])
+                if message:
+                    bot.send_message(user_id, message, parse_mode='HTML')
+                    prev_ind = cur_ind
    
 @bot.message_handler(content_types=['text'])
 def finite_state_machine(message):
