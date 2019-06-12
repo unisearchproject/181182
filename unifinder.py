@@ -156,40 +156,6 @@ def get_universities(
         raise ValueError('Выберите минимум 3 экзамена')
 
 
-if __name__ == '__main__':  # код для тестирования
-    # Вопросы юзеру по поводу сданных предметов.
-
-    check_list = [
-        'готов сдать профильный, профессиональный или '
-        'творческий экзамен в ВУЗе',
-        'красный диплом',
-        'ГТО'
-    ]
-
-    print('Answer yes/no')
-    for exam in passed_exams:
-        if exam not in check_list:
-            q = input('Did you pass {} exam? '.format(exam))
-            if q == 'yes':
-                passed_exams[exam] = True
-        else:
-            q = input('What about {}? '.format(exam))
-            if q == 'yes':
-                passed_exams[exam] = True
-    print('Done')
-
-    print('Enter your bands, please.')
-    for exam in passed_exams:
-        if passed_exams[exam] and exam not in check_list:
-            subjects[exam] = input(f'How many points did you get on {exam}? ')
-    print('Done')
-
-    print('Which cities do you prefer to study in?')
-    for city in selected_cities:
-        q = input('What about {}? '.format(city))
-        if q == 'yes':
-            selected_cities[city] = True
-    print('Done')
 
 
 
