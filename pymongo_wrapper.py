@@ -1,3 +1,6 @@
+import pymongo
+from bson.objectid import ObjectId
+
 class PyMongoWrapper:
 
     def __init__(self, mongo_client, mongo_db):
@@ -41,3 +44,19 @@ class PyMongoWrapper:
         )[var]
 
     ###
+
+    def save_programs(self, univer_title, programs_url):
+        # сохраняем название и ссылку на программы универа
+        insert = self.db.urls.insert_one(
+            {
+                'url': programs_url,
+                'title': univer_title
+            }
+        )
+        return str(insert.inserted_id)
+
+    def get_programs(self, object_id: str):
+        # получаем данные, что сохраняет функция выше
+        return self.db.urls.find_one(
+            {'_id': ObjectId(object_id)}, {'_id': 0}
+        )
