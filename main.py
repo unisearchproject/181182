@@ -334,3 +334,80 @@ def repeat_serch_menu(message):
 
     else:
         bot.send_message(message.chat.id, cfg.use_keyboard)
+        
+        
+ # дублирование не получается избежать (не страшно)
+
+def repeat_subjects(message):
+    # обрабатывает ввод предметов и спрашивает баллы
+    text = message.text.replace(
+        cfg.added_char, '').replace(cfg.ignored_char, '')
+    keyboard = db.get_var(message.chat.id, 'keyboard_subjects')
+
+    if text == cfg.buttons_subjects_keyboard['apply']:
+        subjects = pull_subjects(keyboard)
+        if len(subjects) >= 3:
+            bot.send_message(
+                message.chat.id, cfg.subjects_saved,
+                reply_markup=reply_markup(None)
+            )
+            bot.send_message(
+                message.chat.id, cfg.which_points.format(
+                    cfg.decode_subjects_dative[subjects[-1]]
+                )
+            )
+            db.set_vars(message.chat.id, subjects=subjects, points=[])
+            return repeat_points
+        else:
+            bot.send_message(message.chat.id, cfg.no_subjects)
+
+    elif text in cfg.encode_subjects:
+        keyboard = update_keyboard(text, keyboard)
+        db.set_vars(message.chat.id, keyboard_subjects=keyboard)
+
+        bot.send_message(
+            message.chat.id,
+            random.choice(cfg.nextsubj_messages),
+            reply_markup=reply_markup(keyboard)
+        )
+
+
+def repeat_points(message):
+    # обрабатывает ввод баллов и спрашивает начать ли поиск
+    text = message.text
+    user_id = message.chat.id
+
+    if text.isdigit() and int(text) < 101:
+        subjects = db.get_var(user_id, 'subjects')
+        points = db.get_var(user_id, 'points')
+
+        current_points = int(text)
+        current_subject = subjects.pop()
+        minimum_points = cfg.minimal_grades[
+            cfg.decode_subjects_ucheba[current_subject]]
+
+        if current_points >= minimum_points:
+            points.append(
+                {
+                    'subject_id': current_subject,
+                    'points': int(text)
+                }
+            )
+            db.set_vars(user_id, subjects=subjects, points=points)
+            if subjects:
+                bot.send_message(
+                    message.chat.id,
+                    random.choice(cfg.following_points).format(
+                        cfg.decode_subjects_dative[subjects[-1]]
+                    )
+                )
+            else:
+                bot.send_message(
+                    message.chat.id, cfg.start_search,
+                    reply_markup=reply_markup([cfg.repeat_subjects_button])
+                )
+                return start_search
+        else:  # баллы меньше минимальных
+            bot.send_message(user_id, cfg.points_dont_match)
+    else:
+        bot.send_message(user_id, cfg.invalid_points)
