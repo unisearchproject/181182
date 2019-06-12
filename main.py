@@ -23,6 +23,26 @@ def adjust_keyboard(keyboard, opening_char=cfg.ignored_char):
         for ind in range(len(keyboard))
     ]
 
+
+def update_keyboard(
+        subject, keyboard,
+        added_char=cfg.added_char,
+        ignored_char=cfg.ignored_char):
+    # только для клавиатур где есть массивы строк
+    for row_ind in range(len(keyboard)):
+        row = keyboard[row_ind]
+
+        for button_ind in range(len(row)):
+            button = row[button_ind]
+            if button.endswith(subject):
+                if button.startswith(added_char):
+                    button = button.replace(added_char, ignored_char)
+                elif button.startswith(ignored_char):
+                    button = button.replace(ignored_char, added_char)
+
+            keyboard[row_ind][button_ind] = button
+    return keyboard
+
 # handlers
 
 @bot.message_handler(commands=['start', 'help'])
