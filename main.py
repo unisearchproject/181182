@@ -1,5 +1,22 @@
-#это служебные функции
+import cfg
+import time
+import random
+import telebot
+import unifinder
+from copy import deepcopy
+from inspect import isfunction
+from pymongo_wrapper import PyMongoWrapper
 
+
+bot = telebot.TeleBot(cfg.TOKEN)
+telebot.apihelper.proxy = cfg.PROXY
+
+db = PyMongoWrapper(
+    mongo_client=cfg.MONGO_CLIENT,
+    mongo_db=cfg.MONGO_DATABASE
+)
+
+#это служебные функции
 def reply_markup(keyboard_array):
     if keyboard_array is None:
         return telebot.types.ReplyKeyboardRemove()
