@@ -55,7 +55,9 @@ def pull_selected(
     ]
 
 
-
+def pull_subjects(keyboard, codes=cfg.encode_subjects):
+    # возвращает коды выбранных предметов из клавиатуры
+    return [codes[button] for button in pull_selected(keyboard)]
 
 # handlers
 
