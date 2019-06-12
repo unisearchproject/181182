@@ -9,4 +9,4 @@ PROXY =
 MONGO_CLIENT = 'mongodb://localhost:27017/'
 
 # название базы данных
-MONGO_DATABASE = 'teamproject_test'
+MONGO_DATABASE = 'teamproject_test_181182'
