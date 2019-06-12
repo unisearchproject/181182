@@ -1,3 +1,28 @@
+#это служебные функции
+
+def reply_markup(keyboard_array):
+    if keyboard_array is None:
+        return telebot.types.ReplyKeyboardRemove()
+
+    markup = telebot.types.ReplyKeyboardMarkup(
+        resize_keyboard=True, row_width=2
+    )
+    for row in keyboard_array:
+        markup.row(*row)
+    return markup
+
+
+def adjust_keyboard(keyboard, opening_char=cfg.ignored_char):
+    return [
+        [
+            opening_char + button
+            for button in keyboard[ind]
+        ]
+        # лучше копирования keyboard[1:]
+        if ind != 0 else keyboard[ind]
+        for ind in range(len(keyboard))
+    ]
+
 # handlers ################
 
 @bot.message_handler(commands=['start', 'help'])
